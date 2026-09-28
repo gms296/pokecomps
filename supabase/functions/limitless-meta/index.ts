@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
   try {
-    const res = await fetch("https://limitlesstcg.com/decks?format=standard", {
+    const res = await fetch("https://limitlesstcg.com/decks?format=standard&time=2526", {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; PokeCompsBot/1.0)" },
     });
     const html = await res.text();
