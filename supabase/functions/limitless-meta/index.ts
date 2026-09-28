@@ -51,7 +51,14 @@ Deno.serve(async (req) => {
     const formatCodes = [...new Set(
       [...html.matchAll(/[?&]format=([A-Za-z0-9_.-]+)/g)].map((m) => m[1])
     )];
-    const selectMatch = html.match(/<select[^>]*name="format"[\s\S]*?<\/select>/i);
+    const allSelects = html.match(/<select[^>]*>[\s\S]*?<\/select>/gi) || [];
+    // También buscamos cualquier link o botón que mencione "days", "season", "time" o "recent"
+    const timeHints = [...new Set(
+      [...html.matchAll(/(?:name|id)="([^"]*(?:time|days|season|period|range)[^"]*)"/gi)].map((m) => m[1])
+    )];
+    const internalDeckLinks = [...new Set(
+      [...html.matchAll(/href="(\/decks\?[^"]*)"/gi)].map((m) => m[1])
+    )];
 
     if (top.length) {
       const { error: insertError } = await sb.from("meta_snapshots").insert(
@@ -60,7 +67,7 @@ Deno.serve(async (req) => {
       if (insertError) throw insertError;
     }
 
-    const debugInfo = top.length ? { formatCodesFound: formatCodes, formatSelectSnippet: selectMatch ? selectMatch[0] : null } : {
+    const debugInfo = top.length ? { formatCodesFound: formatCodes, allSelects, timeHints, internalDeckLinks } : {
       fetchStatus: res.status,
       htmlLength: html.length,
       rowsFound: rows.length,
@@ -69,7 +76,9 @@ Deno.serve(async (req) => {
       containsDecksLink: html.includes("/decks/"),
       containsPercent: /\d+\.\d+%/.test(html),
       formatCodesFound: formatCodes,
-      formatSelectSnippet: selectMatch ? selectMatch[0] : null,
+      allSelects,
+      timeHints,
+      internalDeckLinks,
     };
 
     return new Response(JSON.stringify({ decks: top, capturedAt, saved: top.length, ...debugInfo }), {
