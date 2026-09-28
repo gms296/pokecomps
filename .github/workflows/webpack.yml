@@ -1,28 +1,24 @@
-name: NodeJS with Webpack
+name: Deploy Supabase Edge Function
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+  workflow_dispatch: {}
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
 
-    - name: Build
-      run: |
-        npm install
-        npx webpack
+      - name: Deploy limitless-meta
+        run: supabase functions deploy limitless-meta --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
