@@ -46,6 +46,13 @@ Deno.serve(async (req) => {
     const top = decks.slice(0, 20);
     const capturedAt = new Date().toISOString();
 
+    // Buscamos qué códigos de "format=" existen realmente en la página,
+    // para saber cuál corresponde al Standard actual en vez de adivinar.
+    const formatCodes = [...new Set(
+      [...html.matchAll(/[?&]format=([A-Za-z0-9_.-]+)/g)].map((m) => m[1])
+    )];
+    const selectMatch = html.match(/<select[^>]*name="format"[\s\S]*?<\/select>/i);
+
     if (top.length) {
       const { error: insertError } = await sb.from("meta_snapshots").insert(
         top.map((d) => ({ captured_at: capturedAt, deck_ref: d.id, name: d.name, share: d.share }))
@@ -53,7 +60,7 @@ Deno.serve(async (req) => {
       if (insertError) throw insertError;
     }
 
-    const debugInfo = top.length ? {} : {
+    const debugInfo = top.length ? { formatCodesFound: formatCodes, formatSelectSnippet: selectMatch ? selectMatch[0] : null } : {
       fetchStatus: res.status,
       htmlLength: html.length,
       rowsFound: rows.length,
@@ -61,6 +68,8 @@ Deno.serve(async (req) => {
       firstRowSnippet: rows[0] || null,
       containsDecksLink: html.includes("/decks/"),
       containsPercent: /\d+\.\d+%/.test(html),
+      formatCodesFound: formatCodes,
+      formatSelectSnippet: selectMatch ? selectMatch[0] : null,
     };
 
     return new Response(JSON.stringify({ decks: top, capturedAt, saved: top.length, ...debugInfo }), {
