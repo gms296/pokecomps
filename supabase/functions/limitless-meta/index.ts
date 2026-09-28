@@ -3,9 +3,10 @@
 // Trae el metagame de Standard EN VIVO desde la página pública de Limitless TCG
 // (limitlesstcg.com/decks). No necesita ninguna API key.
 //
-// Si no logra encontrar ningún deck, devuelve un pedacito del HTML real recibido
-// (debugHtmlSnippet) para poder diagnosticar si Limitless cambió el diseño de la página,
-// sin tener que desplegar una versión nueva a ciegas cada vez.
+// v4: el nombre del deck puede venir con un ícono (<img>) u otra etiqueta ANTES del
+// texto, dentro del mismo <a>. Ahora se toma todo el contenido interno del link y se
+// le quitan las etiquetas, en vez de esperar texto plano pegado al ">".
+// Si aun así no encuentra nada, sigue devolviendo el diagnóstico (debugHtmlSnippet, etc.)
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -32,14 +33,14 @@ Deno.serve(async (req) => {
     const decks: { id: string; name: string; share: number }[] = [];
 
     for (const row of rows) {
-      const nameMatch = row.match(/<a href="\/decks\/(\d+)"[^>]*>([^<]+)<\/a>/);
+      // Toma TODO el contenido interno del <a href="/decks/ID">...</a>, tenga o no etiquetas adentro
+      const nameMatch = row.match(/<a href="\/decks\/(\d+)"[^>]*>([\s\S]*?)<\/a>/);
       const shareMatch = row.match(/(\d+\.\d+)%/);
       if (nameMatch && shareMatch) {
-        decks.push({
-          id: nameMatch[1],
-          name: nameMatch[2].trim(),
-          share: parseFloat(shareMatch[1]),
-        });
+        const cleanName = nameMatch[2].replace(/<[^>]+>/g, "").trim();
+        if (cleanName) {
+          decks.push({ id: nameMatch[1], name: cleanName, share: parseFloat(shareMatch[1]) });
+        }
       }
     }
     const top = decks.slice(0, 20);
@@ -56,9 +57,8 @@ Deno.serve(async (req) => {
       fetchStatus: res.status,
       htmlLength: html.length,
       rowsFound: rows.length,
-      // primeros 1500 caracteres del HTML real, para ver qué forma tiene ahora
       debugHtmlSnippet: html.slice(0, 1500),
-      // buscamos si al menos existe la palabra "decks/" en algún lado, como pista
+      firstRowSnippet: rows[0] || null,
       containsDecksLink: html.includes("/decks/"),
       containsPercent: /\d+\.\d+%/.test(html),
     };
