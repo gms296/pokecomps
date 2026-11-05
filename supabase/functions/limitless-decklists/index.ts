@@ -30,6 +30,21 @@ function stripTags(html: string): string {
     .replace(/&quot;/g, '"');
 }
 
+// Saca de la página (HTML crudo) la expansión y el número de cada carta, en el orden en que aparecen.
+// Limitless enlaza cada carta como /cards/<EXPANSIÓN>/<NÚMERO> (ej. /cards/TWM/128).
+function extractPrints(html: string): { set: string; num: string }[] {
+  const out: { set: string; num: string }[] = [];
+  const re = /href="(?:https?:\/\/limitlesstcg\.com)?\/cards\/([A-Za-z0-9-]+)\/([A-Za-z0-9-]+)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html))) {
+    const cur = { set: m[1].toUpperCase(), num: m[2] };
+    const last = out[out.length - 1];
+    if (last && last.set === cur.set && last.num === cur.num) continue; // imagen + nombre apuntan a la misma carta
+    out.push(cur);
+  }
+  return out;
+}
+
 function parseDecklist(text: string) {
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
   const headingMap: Record<string, string> = {
@@ -79,7 +94,7 @@ Deno.serve(async (req) => {
       .from("meta_snapshots").select("deck_ref,name,share")
       .eq("captured_at", latestRow.captured_at)
       .order("share", { ascending: false })
-      .limit(8);
+      .limit(20);
 
     const results = [];
     for (const arch of archetypes || []) {
@@ -99,7 +114,16 @@ Deno.serve(async (req) => {
           headers: { "User-Agent": "Mozilla/5.0 (compatible; PokeCompsBot/1.0)" },
         });
         const listHtml = await listRes.text();
-        const cards = parseDecklist(stripTags(listHtml));
+        const cards: { category: string; name: string; quantity: number; set?: string; num?: string }[] =
+          parseDecklist(stripTags(listHtml));
+        // Se asigna expansión+número solo si la cantidad de enlaces coincide con la de cartas leídas;
+        // si no coincide, es más seguro guardar solo el nombre que asignar un número equivocado.
+        const prints = extractPrints(listHtml);
+        let hinted = 0;
+        if (prints.length === cards.length) {
+          cards.forEach((c, i) => { c.set = prints[i].set; c.num = prints[i].num; });
+          hinted = cards.length;
+        }
 
         if (!cards.length) {
           results.push({ archetype: arch.name, ok: false, reason: "no se pudo leer el decklist (¿cambió el diseño de la página?)" });
@@ -111,9 +135,14 @@ Deno.serve(async (req) => {
           cards.map((c) => ({
             archetype: arch.name, card_name: c.name, category: c.category,
             quantity: c.quantity, source_list_id: listId,
+            set_code: c.set ?? null, number: c.num ?? null,
           }))
         );
-        results.push({ archetype: arch.name, ok: true, cards: cards.length, source: listId });
+        results.push({
+          archetype: arch.name, ok: true, cards: cards.length, source: listId,
+          con_expansion_y_numero: hinted, enlaces_encontrados: prints.length,
+          ejemplo: cards.slice(0, 3).map((c) => `${c.quantity} ${c.name} ${c.set ?? "?"} ${c.num ?? "?"}`),
+        });
       } catch (e) {
         results.push({ archetype: arch.name, ok: false, reason: String(e) });
       }
