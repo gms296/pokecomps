@@ -30,17 +30,17 @@ function stripTags(html: string): string {
     .replace(/&quot;/g, '"');
 }
 
-// Saca de la página (HTML crudo) la expansión y el número de cada carta, en el orden en que aparecen.
-// Limitless enlaza cada carta como /cards/<EXPANSIÓN>/<NÚMERO> (ej. /cards/TWM/128).
-function extractPrints(html: string): { set: string; num: string }[] {
-  const out: { set: string; num: string }[] = [];
-  const re = /href="(?:https?:\/\/limitlesstcg\.com)?\/cards\/([A-Za-z0-9-]+)\/([A-Za-z0-9-]+)"/g;
+const norm = (s: string) =>
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+// Saca de la página (HTML crudo) todos los enlaces a cartas (/cards/<EXPANSIÓN>/<NÚMERO>, ej. /cards/TWM/128)
+// junto con su contenido, para poder emparejarlos con cada carta POR NOMBRE.
+function extractAnchors(html: string): { set: string; num: string; hay: string }[] {
+  const out: { set: string; num: string; hay: string }[] = [];
+  const re = /<a\b([^>]*?)href="(?:https?:\/\/limitlesstcg\.com)?\/cards\/([A-Za-z0-9-]+)\/([A-Za-z0-9-]+)"([^>]*)>([\s\S]*?)<\/a>/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(html))) {
-    const cur = { set: m[1].toUpperCase(), num: m[2] };
-    const last = out[out.length - 1];
-    if (last && last.set === cur.set && last.num === cur.num) continue; // imagen + nombre apuntan a la misma carta
-    out.push(cur);
+    out.push({ set: m[2].toUpperCase(), num: m[3], hay: norm(m[1] + " " + m[4] + " " + m[5]) });
   }
   return out;
 }
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
       .from("meta_snapshots").select("deck_ref,name,share")
       .eq("captured_at", latestRow.captured_at)
       .order("share", { ascending: false })
-      .limit(20);
+      .limit(8);
 
     const results = [];
     for (const arch of archetypes || []) {
@@ -116,31 +116,45 @@ Deno.serve(async (req) => {
         const listHtml = await listRes.text();
         const cards: { category: string; name: string; quantity: number; set?: string; num?: string }[] =
           parseDecklist(stripTags(listHtml));
-        // Se asigna expansión+número solo si la cantidad de enlaces coincide con la de cartas leídas;
-        // si no coincide, es más seguro guardar solo el nombre que asignar un número equivocado.
-        const prints = extractPrints(listHtml);
-        let hinted = 0;
-        if (prints.length === cards.length) {
-          cards.forEach((c, i) => { c.set = prints[i].set; c.num = prints[i].num; });
-          hinted = cards.length;
+        // Cada carta busca, hacia adelante, el primer enlace cuyo contenido incluya su nombre.
+        // Si alguna no se encuentra, queda solo con el nombre (la app igual la resuelve por nombre exacto).
+        const anchors = extractAnchors(listHtml);
+        let hinted = 0, ptr = 0;
+        for (const c of cards) {
+          const n = norm(c.name);
+          for (let k = ptr; k < anchors.length; k++) {
+            if (anchors[k].hay.includes(n)) {
+              c.set = anchors[k].set; c.num = anchors[k].num; ptr = k + 1; hinted++;
+              break;
+            }
+          }
+        }
+        let muestra_html: string | undefined;
+        if (arch === (archetypes || [])[0]) {
+          const at = listHtml.search(/href="[^"]*\/cards\//);
+          muestra_html = at >= 0 ? listHtml.slice(Math.max(0, at - 150), at + 750) : "(no hay enlaces /cards/ en la página)";
         }
 
-        if (!cards.length) {
-          results.push({ archetype: arch.name, ok: false, reason: "no se pudo leer el decklist (¿cambió el diseño de la página?)" });
-          continue;
-        }
+        const rows = cards.map((c) => ({
+          archetype: arch.name, card_name: c.name, category: c.category,
+          quantity: c.quantity, source_list_id: listId,
+          set_code: c.set ?? null, number: c.num ?? null,
+        }));
 
         await sb.from("deck_lists").delete().eq("archetype", arch.name);
-        await sb.from("deck_lists").insert(
-          cards.map((c) => ({
-            archetype: arch.name, card_name: c.name, category: c.category,
-            quantity: c.quantity, source_list_id: listId,
-            set_code: c.set ?? null, number: c.num ?? null,
-          }))
-        );
+        let ins = await sb.from("deck_lists").insert(rows);
+        if (ins.error) {
+          // Si todavía no existen las columnas set_code/number, se guarda igual sin ellas.
+          ins = await sb.from("deck_lists").insert(
+            rows.map(({ set_code: _s, number: _n, ...rest }) => rest),
+          );
+          hinted = 0;
+        }
+        if (ins.error) throw new Error(ins.error.message);
+
         results.push({
           archetype: arch.name, ok: true, cards: cards.length, source: listId,
-          con_expansion_y_numero: hinted, enlaces_encontrados: prints.length,
+          con_expansion_y_numero: hinted, enlaces_encontrados: anchors.length, muestra_html,
           ejemplo: cards.slice(0, 3).map((c) => `${c.quantity} ${c.name} ${c.set ?? "?"} ${c.num ?? "?"}`),
         });
       } catch (e) {
