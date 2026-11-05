@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4A3FDB">
+<title>PokeComps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F2F9; --surface:#fff; --soft:#E9EAF5; --ink:#15132B; --muted:#6A6885; --line:#DFE0EE;
+  --brand:#4A3FDB; --on-brand:#fff; --sun:#FFD23F; --on-sun:#15132B;
+  --ok:#14804F; --ok-bg:#DDF4E8; --bad:#C92F46; --bad-bg:#FCE3E7; --warn-bg:#FFF1C2;
+  --display:"Bricolage Grotesque",system-ui,sans-serif; --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F0E1C; --surface:#1A1930; --soft:#262543; --ink:#F2F1FF; --muted:#A3A1C4; --line:#2C2B4A;
+  --brand:#9A92FF; --on-brand:#0F0E1C; --ok:#58D6A0; --ok-bg:#12352A; --bad:#FF7A8D; --bad-bg:#40202A; --warn-bg:#3D3416;
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 15px/1.45 var(--body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;line-height:1.1}
+h1{font-size:30px;font-weight:800}h2{font-size:21px;font-weight:800}h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
+p{margin:0}.muted{color:var(--muted)}.small{font-size:13px}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+[hidden]{display:none!important}
+svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;white-space:nowrap}
+a.btn{text-decoration:none}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn.sun{background:var(--sun);border-color:var(--sun);color:var(--on-sun)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{min-height:36px;padding:0 14px;font-size:14px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.iconbtn{width:44px;height:44px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;position:relative}
+.iconbtn:hover{background:var(--soft)}
+.badge{position:absolute;top:3px;right:2px;min-width:19px;height:19px;border-radius:10px;background:var(--sun);color:var(--on-sun);font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 5px}
+
+/* formularios */
+.field{display:block;margin-bottom:14px}
+.field>span{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+.input{width:100%;min-height:46px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface)}
+textarea.input{min-height:76px;resize:vertical}
+.input:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 25%,transparent)}
+.search{position:relative}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search .input{padding-left:44px;border-radius:999px;min-height:50px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.choice label{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;cursor:pointer;background:var(--surface)}
+.choice input{margin-top:3px;accent-color:var(--brand)}
+.choice label:has(input:checked){border-color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,var(--surface))}
+.choice b{display:block;font-size:14px}.choice small{color:var(--muted);font-size:12px}
+
+/* segmentado y chips */
+.seg{display:inline-flex;background:var(--soft);border-radius:999px;padding:4px;gap:2px;max-width:100%;overflow:auto}
+.seg button{border:0;background:transparent;border-radius:999px;min-height:36px;padding:0 16px;font-weight:700;color:var(--muted);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(20,18,50,.15)}
+.chips{display:flex;gap:8px;overflow:auto;padding-bottom:4px;margin:0 -16px;padding-inline:16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;min-height:38px;padding:0 16px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;background:var(--soft)}
+.pill.pendiente{background:var(--warn-bg)}.pill.pagado,.pill.enviado{background:color-mix(in srgb,var(--brand) 18%,var(--surface));color:var(--brand)}
+.pill.entregado,.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.cancelado,.pill.bad{background:var(--bad-bg);color:var(--bad)}
+
+/* estructura */
+.top{position:sticky;top:0;z-index:20;background:var(--bg);display:flex;align-items:center;gap:8px;padding:8px 12px 8px 16px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+.logo{font:800 22px/1 var(--display);letter-spacing:-.03em;display:flex;align-items:center;gap:8px;margin-right:auto}
+.logo i{width:20px;height:26px;border-radius:5px;background:var(--brand);transform:rotate(-8deg);position:relative;display:block}
+.logo i::after{content:"";position:absolute;inset:4px 4px auto auto;width:8px;height:8px;border-radius:50%;background:var(--sun)}
+nav#nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:var(--safe-b)}
+nav#nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0 8px;font-size:12px;font-weight:700;color:var(--muted)}
+nav#nav button[aria-current="page"]{color:var(--brand)}
+main{max-width:1080px;margin:0 auto;padding:12px 16px calc(96px + var(--safe-b))}
+.view{display:none}.view.on{display:block}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:8px 0 16px;flex-wrap:wrap}
+.pagehead p{margin-top:4px}
+.stack>*+*{margin-top:16px}
+.section{margin-top:28px}
+.section>.head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;gap:10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+@media(min-width:880px){
+  nav#nav{position:static;display:flex;gap:4px;border:0;background:none;padding:0;order:2}
+  nav#nav button{flex-direction:row;gap:8px;font-size:15px;padding:0 16px;min-height:42px;border-radius:999px}
+  nav#nav button[aria-current="page"]{background:var(--soft)}
+  .top{padding-inline:max(16px,calc((100vw - 1080px)/2 + 16px));background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px)}
+  nav#nav{margin-right:auto}
+  .logo{margin-right:24px}.top .spacer{flex:1;order:3}.top-actions{order:4}
+  main{padding-bottom:48px}
+}
+
+/* tarjetas de cartas */
+.cardimg{aspect-ratio:5/7;border-radius:10px;background:linear-gradient(145deg,var(--soft),color-mix(in srgb,var(--brand) 14%,var(--soft)));position:relative;overflow:hidden;display:grid;place-items:center;color:var(--muted)}
+.cardimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .25s}
+.cardimg img.ok{opacity:1}
+.cardimg .ph{font-size:11px;line-height:1.2;text-align:center;padding:8px;overflow-wrap:anywhere}
+.cardimg.has .ph,.rowline .cardimg .ph{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:14px 12px}
+.grid.big{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px 14px}
+.tile{display:flex;flex-direction:column;gap:6px;min-width:0}
+.tile .name{font-weight:700;font-size:14px;line-height:1.2;overflow-wrap:anywhere}
+.tile .meta{font-size:12px;color:var(--muted)}
+.tile .qty{position:absolute;left:6px;top:6px;background:var(--ink);color:var(--bg);border-radius:999px;font-weight:800;font-size:12px;padding:2px 9px;z-index:2}
+.stepper{display:inline-flex;align-items:center;gap:2px;background:var(--soft);border-radius:999px;padding:2px}
+.stepper button{width:34px;height:34px;border-radius:50%;border:0;background:var(--surface);display:grid;place-items:center}
+.stepper b{min-width:28px;text-align:center}
+.rowline{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.rowline:last-child{border-bottom:0}
+.rowline .cardimg{width:44px;flex-shrink:0;border-radius:6px}
+.rowline .grow{flex:1;min-width:0}
+.rowline .grow b{display:block;overflow-wrap:anywhere}
+
+/* tienda */
+.product{display:flex;flex-direction:column;gap:8px;text-align:left;background:none;border:0;padding:0;min-width:0}
+.product .cardimg{border-radius:12px}
+.tag{position:absolute;left:-4px;bottom:10px;background:var(--sun);color:var(--on-sun);font:800 15px/1 var(--display);padding:7px 10px 7px 12px;border-radius:0 8px 8px 0;transform:rotate(-2deg);box-shadow:0 2px 0 rgba(0,0,0,.18);z-index:2}
+.product.out .cardimg{filter:grayscale(1);opacity:.6}
+.product .name{font-weight:700;line-height:1.2}
+.stockline{font-size:12px;font-weight:700}
+.stockline.low{color:var(--bad)}.stockline.out{color:var(--muted)}
+.hscroll{display:flex;gap:14px;overflow:auto;margin:0 -16px;padding:2px 16px 8px;scroll-snap-type:x proximity;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.hscroll>*{flex:0 0 138px;scroll-snap-align:start}
+
+/* inicio */
+.hello{padding:10px 0 4px}
+.hello h1{margin-bottom:14px}
+.statline{display:flex;gap:6px 18px;flex-wrap:wrap;margin-top:14px;color:var(--muted)}
+.statline b{color:var(--ink);font-family:var(--display);font-size:19px}
+.starter{display:grid;gap:10px;margin-top:22px}
+.starter button{display:flex;align-items:center;gap:14px;text-align:left;padding:14px 16px;border-radius:16px;border:1.5px dashed var(--line);background:var(--surface)}
+.starter button:hover{border-color:var(--brand)}
+.starter .ic{color:var(--brand);width:28px;height:28px}
+.starter b{display:block}
+.metarow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+.metarow:last-child{border-bottom:0}
+.bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand);border-radius:3px}
+.delta.up{color:var(--ok);font-weight:700}.delta.down{color:var(--bad);font-weight:700}
+
+/* capas */
+#layer{position:fixed;inset:0;z-index:60;background:rgba(15,14,28,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92dvh;border-radius:24px 24px 0 0;display:flex;flex-direction:column;animation:up .22s ease-out;overflow:hidden}
+.sheet.wide{max-width:760px}
+.sheet header{display:flex;align-items:center;gap:8px;padding:14px 12px 10px 20px;flex-shrink:0}
+.sheet header h2{flex:1}
+.sheet .body{padding:4px 20px calc(24px + var(--safe-b));overflow:auto;flex:1}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@media(min-width:880px){#layer{align-items:center}.sheet{border-radius:24px;max-height:88dvh}}
+#toasts{position:fixed;left:0;right:0;bottom:calc(84px + var(--safe-b));z-index:80;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.toast{background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;animation:up .2s ease-out;max-width:100%}
+.toast.err{background:var(--bad);color:#fff}
+@media(min-width:880px){#toasts{bottom:28px}}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}
+.empty h3{color:var(--ink);margin-bottom:6px;font-size:18px}
+.empty .btn{margin-top:14px}
+.notice{padding:12px 14px;border-radius:12px;background:color-mix(in srgb,var(--brand) 10%,var(--surface));font-size:14px}
+.notice.warn{background:var(--warn-bg)}
+p.err{color:var(--bad);font-weight:600;font-size:14px;margin:8px 0}
+.refcode{font:800 34px/1 var(--display);letter-spacing:.04em;text-align:center;padding:18px;border-radius:16px;background:var(--sun);color:var(--on-sun);margin:14px 0;user-select:all}
+dl.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+dl.kv dt{color:var(--muted)}dl.kv dd{margin:0;font-weight:700;text-align:right;overflow-wrap:anywhere}
+.total{display:flex;justify-content:space-between;font:800 20px var(--display);padding-top:12px;margin-top:6px;border-top:2px solid var(--ink)}
+.progress{height:8px;border-radius:4px;background:var(--soft);overflow:hidden;margin:8px 0}
+.progress i{display:block;height:100%;background:var(--brand)}
+.order{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.order+.order{margin-top:12px}
+.order .top2{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+.order ul{list-style:none;margin:8px 0;padding:0}.order li{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+
+/* acceso */
+#auth{min-height:100dvh;display:grid;align-content:center;gap:28px;padding:28px 20px;max-width:440px;margin:0 auto}
+#auth h1{font-size:40px}
+#auth .tabs{margin-bottom:16px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<!-- ACCESO -->
+<div id="auth" hidden>
+  <div>
+    <div class="logo" style="margin-bottom:22px"><i></i>PokeComps</div>
+    <h1>Tu colección, tus decks y la tienda de cartas en un solo lugar.</h1>
+  </div>
+  <form id="authForm" class="panel" autocomplete="on">
+    <div class="seg tabs" role="group" aria-label="Modo de acceso">
+      <button type="button" data-act="authMode" data-v="in" aria-pressed="true">Entrar</button>
+      <button type="button" data-act="authMode" data-v="up" aria-pressed="false">Crear cuenta</button>
+    </div>
+    <label class="field"><span>Email</span><input class="input" id="authEmail" type="email" autocomplete="email" required></label>
+    <label class="field"><span>Contraseña</span><input class="input" id="authPass" type="password" autocomplete="current-password" minlength="6" required></label>
+    <button class="btn primary block" id="authSubmit" type="submit">Entrar</button>
+    <p id="authMsg" class="small muted" style="margin-top:12px" role="status"></p>
+  </form>
+</div>
+
+<!-- APP -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="logo"><i></i>PokeComps</div>
+    <nav id="nav" aria-label="Secciones"></nav>
+    <div class="top-actions" style="display:flex">
+      <button class="iconbtn" data-act="openCart" aria-label="Abrir carrito"><span id="icCart"></span><span class="badge" id="cartBadge" hidden>0</span></button>
+      <button class="iconbtn" data-act="openMenu" aria-label="Mi cuenta"><span id="icUser"></span></button>
+    </div>
+  </header>
+  <main>
+    <section class="view" id="v-home"></section>
+    <section class="view" id="v-collection"></section>
+    <section class="view" id="v-decks"></section>
+    <section class="view" id="v-shop"></section>
+    <section class="view" id="v-admin"></section>
+  </main>
+</div>
+
+<div id="layer" hidden></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+/* =====================================================================
+   CONFIGURACIÓN — completá estos datos antes de abrir la tienda
+   ===================================================================== */
+const SUPABASE_URL = "https://ymulyakvundsnftkzynr.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltdWx5YWt2dW5kc25mdGt6eW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0NjM1MTMsImV4cCI6MjEwNjAzOTUxM30.LjfXg705h8RjZrq2LIpTlC8JFIya4vt_GEq6ZTnhYR8";
+const POKEMONTCG_API_KEY = "TU_POKEMONTCG_API_KEY_AQUI"; // opcional; sin clave funciona con menos pedidos por día
+
+const STORE_CONFIG = {
+  name: "PokeComps Shop",
+  whatsapp: "595983158917",            // número con código de país, sin + ni espacios
+  bank: {                               // datos para las transferencias
+    banco: "",            // opcional: lo que dejes vacío no se muestra
+    titular: "",          // opcional: nombre del titular del alias
+    cuenta: "0983158917 (alias: celular)",
+    documento: ""         // opcional: C.I. o RUC
+  },
+  pickup: "Retiro: coordinamos el punto y la hora por WhatsApp.",
+  shippingNote: "El costo del envío depende de la distancia: lo coordinamos por WhatsApp y no está incluido en el total."
+};
+
+/* ===================================================================== */
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const pokemonTcgHeaders = (POKEMONTCG_API_KEY && !POKEMONTCG_API_KEY.startsWith("TU_")) ? {"X-Api-Key":POKEMONTCG_API_KEY} : {};
+
+const cards={ "Charizard ex":18,"Pidgeot ex":7.5,"Charmander":1.2,"Rare Candy":.8,"Ultra Ball":.35,"Arven":.4,"Boss's Orders":.55,"Fire Energy":.15,"Dragapult ex":14,"Dreepy":.8,"Drakloak":1.4,"Nest Ball":.3,"Iono":.45,"Psychic Energy":.15,"Gardevoir ex":9.5,"Ralts":.7,"Kirlia":1.8,"Counter Catcher":.9,"Buddy-Buddy Poffin":.7 };
+const refDecks={
+ "Charizard ex":[["Charmander",4],["Charizard ex",3],["Pidgeot ex",2],["Rare Candy",4],["Ultra Ball",4],["Buddy-Buddy Poffin",4],["Arven",2],["Boss's Orders",2],["Fire Energy",8]],
+ "Dragapult ex":[["Dreepy",4],["Drakloak",2],["Dragapult ex",3],["Rare Candy",4],["Ultra Ball",4],["Nest Ball",2],["Iono",4],["Boss's Orders",2],["Psychic Energy",8]],
+ "Gardevoir ex":[["Ralts",4],["Kirlia",2],["Gardevoir ex",3],["Rare Candy",4],["Ultra Ball",4],["Buddy-Buddy Poffin",4],["Iono",4],["Counter Catcher",2],["Psychic Energy",8]]
+};
+const basicEnergies=["Fire Energy","Water Energy","Grass Energy","Lightning Energy","Psychic Energy","Fighting Energy","Darkness Energy","Metal Energy","Fairy Energy"];
+
+/* ---------- utilidades ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gs=n=>'Gs. '+Math.round(Number(n)||0).toLocaleString('es-PY');
+const usd=n=>'US$ '+(Number(n)||0).toFixed(2);
+const fdate=d=>new Date(d).toLocaleString('es-PY',{dateStyle:'short',timeStyle:'short'});
+const debounce=(fn,ms=400)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}};
+const store={
+  get(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return def}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const ICONS={
+ home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+ coll:'<rect x="3" y="6" width="12" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/>',
+ decks:'<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+ shop:'<path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+ cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11L21 7H6"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>', minus:'<path d="M5 12h14"/>',
+ trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+ close:'<path d="M6 6l12 12M18 6L6 18"/>', check:'<path d="M5 12l5 5 9-10"/>',
+ stack:'<rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 9h6M9 13h4"/>'
+};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
+const attr=o=>Object.entries(o).map(([k,v])=>`data-${k}="${esc(v)}"`).join(' ');
+
+/* ---------- estado ---------- */
+const S={
+  user:null,isAdmin:false,view:'home',
+  collection:{},wishlist:{},collTab:'have',collQuery:'',
+  myDecks:[],deckTotals:{},deckTab:'mine',activeDeckId:null,activeArchetype:null,deckCards:{},builderMode:'suggested',realNames:new Set(),
+  meta:null,
+  products:[],shopError:null,shopFilter:'all',shopQuery:'',shopTab:'catalog',orders:[],
+  cart:store.get('pc_cart',{}),
+  adminTab:'orders',adminOrders:[],adminOrderFilter:'pendiente',
+  authMode:'in'
+};
+
+/* ---------- API de cartas (imagen + precio real) ---------- */
+const infoCache={};
+const printHints={};   // nombre -> {set,num}: expansión y número de la impresión exacta (vienen de las listas reales)
+const normName=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const isStd=c=>!!(c.legalities&&c.legalities.standard==='Legal');
+const priceOf=c=>{
+  if(!(c.tcgplayer&&c.tcgplayer.prices)) return null;
+  const vs=Object.values(c.tcgplayer.prices).filter(Boolean), v=vs.find(v=>v.market)||vs[0];
+  return v?(v.market||v.mid||v.low||null):null;
+};
+/* Pedidos a la API: de a pocos a la vez, con límite de tiempo y reintentos (la API a veces tarda o falla un rato) */
+let apiActive=0; const apiWaiting=[];
+const apiSlot=()=>new Promise(res=>{ const go=()=>{apiActive++;res()}; apiActive<4?go():apiWaiting.push(go); });
+const apiFree=()=>{ apiActive--; const n=apiWaiting.shift(); if(n) n(); };
+async function apiGet(q,tries=3){
+  await apiSlot();
+  try{
+    for(let i=0;i<tries;i++){
+      const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),12000);
+      try{
+        const r=await fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(q)}&pageSize=40&orderBy=-set.releaseDate`,{headers:pokemonTcgHeaders,signal:ctl.signal});
+        clearTimeout(t);
+        if(r.ok) return (await r.json()).data||[];
+        if(r.status!==429&&r.status<500) return [];
+      }catch(e){ clearTimeout(t); }
+      if(i<tries-1) await new Promise(r=>setTimeout(r,700*(i+1)*(i+1)));
+    }
+  }finally{ apiFree(); }
+  throw new Error('api');
+}
+/* Caché en el dispositivo: las cartas que ya se vieron no se vuelven a pedir durante 24 h */
+const CI_KEY='pc_ci_v1', CI_TTL=24*3600*1000;
+let ciDisk=store.get(CI_KEY,{});
+const ciSave=debounce(()=>{
+  const ks=Object.keys(ciDisk); if(ks.length>700) ks.sort((a,b)=>ciDisk[a].t-ciDisk[b].t).slice(0,ks.length-600).forEach(k=>delete ciDisk[k]);
+  store.set(CI_KEY,ciDisk);
+},1500);
+function cardInfo(name){
+  const h=printHints[name], key=h?`${name}|${h.set}|${h.num}`:name;
+  if(infoCache[key]) return infoCache[key];
+  const d=ciDisk[key];
+  if(d&&Date.now()-d.t<CI_TTL){ return infoCache[key]=Promise.resolve(d.v); }
+  const p=(async()=>{
+    const info={image:null,price:null,exact:false}; let failed=false;
+    try{
+      let c=null;
+      // 1) Doble chequeo: expansión + número de carta, y el nombre tiene que coincidir.
+      if(h){
+        const hit=(await apiGet(`set.ptcgoCode:${h.set} number:${h.num}`)).find(x=>normName(x.name)===normName(name));
+        if(hit){ c=hit; info.exact=true; }
+      }
+      // 2) Si no hay datos de expansión: solo cartas con EXACTAMENTE ese nombre (no "Larry's Dunsparce" para "Dunsparce"),
+      //    prefiriendo la impresión más nueva que sea legal en Standard.
+      if(!c){
+        const q=basicEnergies.includes(name)?`name:"${name}" supertype:Energy subtypes:Basic`:`name:"${name}"`;
+        const pool=(await apiGet(q)).filter(x=>normName(x.name)===normName(name));
+        if(pool.length){ c=pool.find(isStd)||pool[0]; info.legalStandard=pool.some(isStd); }
+      }
+      if(c){ info.image=c.images?c.images.small:null; info.price=priceOf(c); }
+    }catch(e){ failed=true; }
+    if(info.price==null) info.price=cards[name]||0;
+    if(failed){ delete infoCache[key]; }                       // un error de red NO se guarda: se reintenta la próxima vez
+    else if(info.image){ ciDisk[key]={t:Date.now(),v:info}; ciSave(); }
+    return info;
+  })();
+  infoCache[key]=p; return p;
+}
+async function searchCards(query){
+  try{
+    const clean=query.replace(/["\\]/g,'');
+    const data=await apiGet(`name:${clean}*`);
+    const seen=new Set(),out=[];
+    for(const c of data){
+      if(seen.has(c.name)) continue; seen.add(c.name);
+      out.push({name:c.name,image:c.images?c.images.small:null,set:c.set?c.set.name:'',legal:isStd(c)});
+      if(out.length>=24) break;
+    }
+    return out;
+  }catch(e){return null}   // null = la API no respondió (distinto de "sin resultados")
+}
+/* Completa imágenes y precios marcados con data-card / data-price dentro de un contenedor */
+function hydrate(root=document){
+  $$('img[data-card]',root).forEach(img=>{
+    if(img.dataset.done) return; img.dataset.done=1;
+    const show=()=>{ img.classList.add('ok'); img.parentElement?.classList.add('has'); };
+    img.addEventListener('load',show);
+    img.addEventListener('error',()=>{
+      img.classList.remove('ok'); img.parentElement?.classList.remove('has');
+      if(!img.dataset.retried&&img.src){ img.dataset.retried=1; const s=img.src; setTimeout(()=>{ img.src=s+(s.includes('?')?'&':'?')+'r=1'; },1500); }
+    });
+    cardInfo(img.dataset.card).then(i=>{ if(i.image) img.src=i.image; });
+  });
+  $$('[data-price]',root).forEach(el=>{
+    const m=+el.dataset.mult||1;
+    cardInfo(el.dataset.price).then(i=>{ el.textContent=usd(i.price*m); });
+  });
+}
+const cardBox=(name,extra='')=>`<div class="cardimg">${extra}<span class="ph">${esc(name)}</span><img alt="" data-card="${esc(name)}"></div>`;
+
+/* ---------- avisos y capas ---------- */
+function toast(msg,err){
+  const t=document.createElement('div'); t.className='toast'+(err?' err':''); t.textContent=msg;
+  $('#toasts').appendChild(t); setTimeout(()=>t.remove(),err?4500:2400);
+}
+let sheetOnClose=null;
+function openSheet(title,html,opts={}){
+  const layer=$('#layer');
+  layer.innerHTML=`<div class="sheet ${opts.wide?'wide':''}" role="dialog" aria-modal="true" aria-label="${esc(title)}" tabindex="-1">
+    <header><h2>${esc(title)}</h2><button class="iconbtn" data-act="closeSheet" aria-label="Cerrar">${ic('close')}</button></header>
+    <div class="body" id="sheetBody">${html}</div></div>`;
+  layer.hidden=false; sheetOnClose=opts.onClose||null;
+  document.body.style.overflow='hidden';
+  const sh=$('.sheet',layer); const first=$('input:not([type=radio]),textarea,select',sh);
+  (opts.focus!==false&&first?first:sh).focus({preventScroll:true});
+  hydrate(layer);
+}
+function setSheet(html){ const b=$('#sheetBody'); if(b){b.innerHTML=html; hydrate(b);} }
+function closeSheet(){
+  const layer=$('#layer'); layer.hidden=true; layer.innerHTML=''; document.body.style.overflow='';
+  const f=sheetOnClose; sheetOnClose=null; if(f) f();
+}
+function askText(title,label,value=''){
+  return new Promise(res=>{
+    openSheet(title,`<form data-form="ask"><label class="field"><span>${esc(label)}</span><input class="input" name="v" value="${esc(value)}" required maxlength="60"></label>
+      <button class="btn primary block" type="submit">Guardar</button></form>`,{onClose:()=>res(null)});
+    $('#layer form').addEventListener('submit',e=>{e.preventDefault();const v=new FormData(e.target).get('v').trim();sheetOnClose=null;closeSheet();res(v||null)});
+  });
+}
+
+/* ---------- acceso ---------- */
+async function boot(){
+  $('#icCart').innerHTML=ic('cart'); $('#icUser').innerHTML=ic('user');
+  $('#nav').innerHTML=[['home','home','Inicio'],['collection','coll','Colección'],['decks','decks','Decks'],['shop','shop','Tienda']]
+    .map(([v,i,l])=>`<button data-act="go" data-view="${v}">${ic(i)}<span>${l}</span></button>`).join('');
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session){S.user=session.user;await onLogin();return}
+  }catch(e){}
+  $('#auth').hidden=false;
+}
+async function submitAuth(e){
+  e.preventDefault();
+  const email=$('#authEmail').value.trim(),password=$('#authPass').value,msg=$('#authMsg');
+  msg.textContent='';
+  if(S.authMode==='in'){
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    if(error){msg.textContent=error.message;return}
+    S.user=data.user; await onLogin();
+  }else{
+    const {error}=await sb.auth.signUp({email,password});
+    if(error){msg.textContent=error.message;return}
+    msg.textContent='Cuenta creada. Si te llega un mail de confirmación, abrilo y después entrá.';
+  }
+}
+function setAuthMode(m){
+  S.authMode=m;
+  $$('#authForm .seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===m));
+  $('#authSubmit').textContent=m==='in'?'Entrar':'Crear cuenta';
+  $('#authPass').autocomplete=m==='in'?'current-password':'new-password';
+}
+async function signOut(){ await sb.auth.signOut(); location.reload(); }
+
+async function onLogin(){
+  $('#auth').hidden=true; $('#app').hidden=false;
+  const [adm]=await Promise.all([
+    sb.from('admins').select('user_id').eq('user_id',S.user.id).maybeSingle().then(r=>!!(r.data),()=>false),
+    loadCollection(), loadWishlist(), loadProducts()
+  ]);
+  S.isAdmin=adm;
+  updateCartBadge();
+  go(S.view||'home');
+  loadLiveMeta().then(()=>{ if(S.view==='home') renderHome(); });
+  loadDecks();
+}
+
+/* ---------- navegación ---------- */
+function go(view){
+  S.view=view;
+  $$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+view));
+  $$('#nav button').forEach(b=>{ if(b.dataset.view===view) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  ({home:renderHome,collection:renderCollection,decks:renderDecks,shop:renderShop,admin:renderAdmin})[view]();
+  window.scrollTo({top:0});
+}
+const seg=(act,cur,opts)=>`<div class="seg" role="group">${opts.map(([v,l])=>`<button data-act="${act}" data-v="${v}" aria-pressed="${cur===v}">${l}</button>`).join('')}</div>`;
+const empty=(title,text,btn='')=>`<div class="empty"><h3>${title}</h3><p>${text}</p>${btn}</div>`;
+
+/* ---------- datos: colección y lista de deseos ---------- */
+async function loadCollection(){
+  const {data,error}=await sb.from('collections').select('card_name,quantity').eq('user_id',S.user.id);
+  S.collection={}; (data||[]).forEach(r=>S.collection[r.card_name]=r.quantity); if(error) console.error(error);
+}
+async function loadWishlist(){
+  const {data,error}=await sb.from('wishlist').select('card_name,quantity').eq('user_id',S.user.id);
+  S.wishlist={}; (data||[]).forEach(r=>S.wishlist[r.card_name]=r.quantity); if(error) console.error(error);
+}
+async function setCollQty(name,q){
+  if(q<=0){
+    delete S.collection[name];
+    const {error}=await sb.from('collections').delete().eq('user_id',S.user.id).eq('card_name',name);
+    if(error) return toast('No se pudo quitar: '+error.message,1);
+  }else{
+    S.collection[name]=q;
+    const {error}=await sb.from('collections').upsert({user_id:S.user.id,card_name:name,quantity:q},{onConflict:'user_id,card_name'});
+    if(error) return toast('No se pudo guardar: '+error.message,1);
+  }
+  refreshCollectionViews();
+}
+async function addWishQty(name,q){
+  if(q<=0){ delete S.wishlist[name]; await sb.from('wishlist').delete().eq('user_id',S.user.id).eq('card_name',name); }
+  else{
+    S.wishlist[name]=q;
+    const {error}=await sb.from('wishlist').upsert({user_id:S.user.id,card_name:name,quantity:q},{onConflict:'user_id,card_name'});
+    if(error) return toast('No se pudo guardar: '+error.message,1);
+  }
+  refreshCollectionViews();
+}
+async function gotWish(name){
+  const n=S.wishlist[name]||1;
+  await setCollQty(name,(S.collection[name]||0)+n);
+  await addWishQty(name,0);
+  toast(name+' pasó a tu colección');
+}
+function refreshCollectionViews(){
+  if(S.view==='collection') renderCollectionGrid();
+  if(S.view==='home'&&($('#homeSearch')?.value.trim().length||0)<3) renderHome();
+  if(S.view==='collection'){ const c=$('#collCounts'); if(c) c.innerHTML=collCountsHtml(); }
+}
+
+/* ---------- INICIO ---------- */
+let homeSearchSeq=0;
+function renderHome(){
+  const name=(S.user.email||'').split('@')[0];
+  const total=Object.values(S.collection).reduce((a,b)=>a+b,0);
+  const feat=S.products.filter(p=>p.active&&p.stock>0).slice(0,8);
+  const root=$('#v-home');
+  root.innerHTML=`
+   <div class="hello">
+     <h1>Hola, ${esc(name)}</h1>
+     <div class="search">${ic('search')}<input class="input" id="homeSearch" data-on="homeSearch" placeholder="Buscá una carta por nombre" aria-label="Buscar cartas y productos" autocomplete="off"></div>
+     ${total?`<div class="statline"><span><b>${total}</b> cartas</span><span><b id="homeValue">…</b> de valor</span><span><b>${Object.keys(S.wishlist).length}</b> por conseguir</span></div>`:''}
+   </div>
+   <div id="homeResults"></div>
+   <div id="homeMain">
+    ${total?'':`<div class="starter">
+      <button data-act="openCardSearch" data-v="coll">${ic('coll')}<span><b>Cargá tus primeras cartas</b><span class="muted small">Buscalas por nombre, sin escanear nada.</span></span></button>
+      <button data-act="go" data-view="decks">${ic('decks')}<span><b>Armá un deck</b><span class="muted small">Con listas reales de los torneos de Standard.</span></span></button>
+      <button data-act="go" data-view="shop">${ic('shop')}<span><b>Mirá la tienda</b><span class="muted small">Decks armados y cartas sueltas.</span></span></button>
+    </div>`}
+    ${feat.length?`<div class="section"><div class="head"><h2>Lo nuevo en la tienda</h2><button class="btn sm" data-act="go" data-view="shop">Ver todo</button></div>
+      <div class="hscroll">${feat.map(productCard).join('')}</div></div>`:''}
+    <div class="section"><div class="head"><h2>Lo que se juega ahora</h2><button class="btn sm" data-act="goMeta">Ver meta</button></div>
+      <div class="panel">${metaRowsHtml(5)}</div></div>
+   </div>`;
+  hydrate(root);
+  if(total){
+    Promise.all(Object.entries(S.collection).map(([n,q])=>cardInfo(n).then(i=>i.price*q))).then(v=>{
+      const el=$('#homeValue'); if(el) el.textContent=usd(v.reduce((a,b)=>a+b,0));
+    });
+  }
+}
+async function onHomeSearch(){
+  const q=$('#homeSearch').value.trim(), box=$('#homeResults'), main=$('#homeMain'), seq=++homeSearchSeq;
+  if(q.length<3){ box.innerHTML=''; main.hidden=false; return; }
+  main.hidden=true; box.innerHTML='<p class="muted" style="margin-top:20px">Buscando…</p>';
+  const lq=q.toLowerCase();
+  const prods=S.products.filter(p=>p.active&&(p.name.toLowerCase().includes(lq)||(p.card_name||'').toLowerCase().includes(lq)));
+  const res=await searchCards(q);
+  if(seq!==homeSearchSeq) return;
+  box.innerHTML=`
+    ${prods.length?`<div class="section"><div class="head"><h2>En la tienda</h2></div><div class="grid big">${prods.map(productCard).join('')}</div></div>`:''}
+    <div class="section"><div class="head"><h2>Cartas</h2></div>
+    ${resultsHtml(res,'both')}</div>`;
+  hydrate(box);
+}
+function resultsHtml(res,mode){
+  if(res===null) return empty('No pudimos consultar el catálogo de cartas','Puede ser tu conexión o que el servicio esté lento. Probá de nuevo en unos segundos.');
+  return res.length?`<div class="grid">${res.map(c=>searchTile(c,mode)).join('')}</div>`:empty('Sin resultados','Probá con otras letras del nombre.');
+}
+function searchTile(c,mode){
+  const have=S.collection[c.name]||0;
+  const btns=mode==='both'
+    ?`<div style="display:flex;gap:6px"><button class="btn sm" style="flex:1;padding:0 8px" ${attr({act:'cardAdd',v:'coll',name:c.name})}>${ic('plus')}Tengo</button><button class="btn sm" style="flex:1;padding:0 8px" ${attr({act:'cardAdd',v:'wish',name:c.name})}>Me falta</button></div>`
+    :`<button class="btn sm primary" ${attr({act:'cardAdd',v:mode,name:c.name})}>${ic('plus')}Agregar</button>`;
+  return `<div class="tile">${c.image?`<div class="cardimg">${have?`<span class="qty">×${have}</span>`:''}<img alt="" src="${esc(c.image)}" onload="this.classList.add('ok')"></div>`:cardBox(c.name)}
+    <div class="name">${esc(c.name)}</div><div class="meta">${esc(c.set)}${c.legal?'':' · fuera de Standard'}</div>${btns}</div>`;
+}
+async function cardAdd(mode,name){
+  if(mode==='coll'){ await setCollQty(name,(S.collection[name]||0)+1); toast(name+' agregada a tu colección'); }
+  else if(mode==='wish'){ await addWishQty(name,(S.wishlist[name]||0)+1); toast(name+' en tu lista de deseos'); }
+  else if(mode==='deck'){ await changeFreeCard(name,1); toast(name+' agregada al deck'); }
+  if(S.view==='home') { /* mantener los resultados visibles */ }
+}
+
+/* ---------- COLECCIÓN ---------- */
+const collCountsHtml=()=>`${Object.values(S.collection).reduce((a,b)=>a+b,0)} cartas · ${Object.keys(S.wishlist).length} por conseguir`;
+function renderCollection(){
+  $('#v-collection').innerHTML=`
+   <div class="pagehead"><div><h1>Colección</h1><p class="muted" id="collCounts">${collCountsHtml()}</p></div>
+     <button class="btn primary" data-act="openCardSearch" data-v="${S.collTab==='have'?'coll':'wish'}">${ic('plus')}Agregar cartas</button></div>
+   <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+     ${seg('collTab',S.collTab,[['have','Las tengo'],['wish','Me faltan']])}
+     <div class="search" style="flex:1;min-width:200px">${ic('search')}<input class="input" data-on="collQuery" value="${esc(S.collQuery)}" placeholder="Buscar en esta lista" aria-label="Buscar en esta lista"></div>
+   </div>
+   <div id="collGrid"></div>`;
+  renderCollectionGrid();
+}
+function renderCollectionGrid(){
+  const box=$('#collGrid'); if(!box) return;
+  const src=S.collTab==='have'?S.collection:S.wishlist, q=S.collQuery.toLowerCase();
+  const names=Object.keys(src).filter(n=>n.toLowerCase().includes(q)).sort();
+  if(!names.length){
+    box.innerHTML=Object.keys(src).length
+      ?empty('Nada con ese nombre','Revisá las letras o borrá la búsqueda.')
+      :(S.collTab==='have'
+        ?empty('Todavía no cargaste cartas','Buscalas por nombre y sumalas con un toque.',`<button class="btn primary" data-act="openCardSearch" data-v="coll">${ic('plus')}Agregar mi primera carta</button>`)
+        :empty('Tu lista de deseos está vacía','Guardá acá las cartas que querés conseguir y mirá si las tenemos en la tienda.',`<button class="btn primary" data-act="openCardSearch" data-v="wish">${ic('plus')}Agregar una carta</button>`));
+    return;
+  }
+  box.innerHTML=`<div class="grid">${names.map(n=>{
+    const q=src[n];
+    if(S.collTab==='have') return `<div class="tile">${cardBox(n,`<span class="qty">×${q}</span>`)}
+      <div class="name">${esc(n)}</div><div class="meta" data-price="${esc(n)}" data-mult="${q}">…</div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><div class="stepper"><button ${attr({act:'collDec',name:n})} aria-label="Quitar una ${esc(n)}">${ic('minus')}</button><button ${attr({act:'collInc',name:n})} aria-label="Sumar una ${esc(n)}">${ic('plus')}</button></div>
+      <button class="iconbtn" style="width:36px;height:36px" ${attr({act:'collDel',name:n})} aria-label="Eliminar ${esc(n)}">${ic('trash')}</button></div></div>`;
+    const p=productForCard(n);
+    return `<div class="tile">${cardBox(n,`<span class="qty">×${q}</span>`)}<div class="name">${esc(n)}</div>
+      ${p?`<button class="btn sm sun" ${attr({act:'addToCart',id:p.id})}>Comprar · ${gs(p.price_pyg)}</button>`:''}
+      <button class="btn sm" ${attr({act:'wishGot',name:n})}>${ic('check')}Ya la tengo</button>
+      <button class="btn sm" ${attr({act:'wishDel',name:n})}>Quitar</button></div>`;
+  }).join('')}</div>`;
+  hydrate(box);
+}
+const productForCard=name=>S.products.find(p=>p.active&&p.stock>0&&p.card_name&&p.card_name.toLowerCase()===name.toLowerCase());
+
+function openCardSearch(mode){
+  const title=mode==='wish'?'Agregar a Me faltan':'Agregar a tu colección';
+  openSheet(title,`<div class="search">${ic('search')}<input class="input" data-on="sheetSearch" data-mode="${mode}" placeholder="Escribí al menos 3 letras" autocomplete="off" aria-label="Buscar carta"></div>
+    <div id="sheetResults" style="margin-top:16px"><p class="muted small">Ej: char, dragap, boss…</p></div>`,{wide:true});
+}
+const onSheetSearch=debounce(async(input)=>{
+  const q=input.value.trim(), box=$('#sheetResults'); if(!box) return;
+  if(q.length<3){ box.innerHTML='<p class="muted small">Escribí al menos 3 letras.</p>'; return; }
+  box.innerHTML='<p class="muted">Buscando…</p>';
+  const res=await searchCards(q);
+  if(!$('#sheetResults')) return;
+  box.innerHTML=resultsHtml(res,input.dataset.mode);
+  hydrate(box);
+});
+
+/* ---------- DECKS ---------- */
+async function loadDecks(){
+  const {data,error}=await sb.from('decks').select('id,name,archetype,created_at').eq('user_id',S.user.id).order('created_at',{ascending:false});
+  S.myDecks=data||[]; if(error) console.error(error);
+  S.deckTotals={};
+  if(S.myDecks.length){
+    const {data:dc}=await sb.from('deck_cards').select('deck_id,quantity').in('deck_id',S.myDecks.map(d=>d.id));
+    (dc||[]).forEach(r=>S.deckTotals[r.deck_id]=(S.deckTotals[r.deck_id]||0)+r.quantity);
+  }
+  if(S.view==='decks') renderDecks();
+}
+async function loadSuggestions(){
+  try{
+    const {data:latest}=await sb.from('meta_snapshots').select('captured_at').order('captured_at',{ascending:false}).limit(1).maybeSingle();
+    const {data:real}=await sb.from('deck_lists').select('archetype');
+    S.realNames=new Set((real||[]).map(r=>r.archetype));
+    if(latest){
+      const {data:cur}=await sb.from('meta_snapshots').select('name,share').eq('captured_at',latest.captured_at).order('share',{ascending:false});
+      const m=(cur||[]).filter(d=>refDecks[d.name]||S.realNames.has(d.name));
+      if(m.length) return m.map(d=>({name:d.name,share:d.share,real:S.realNames.has(d.name)}));
+    }
+  }catch(e){}
+  return Object.keys(refDecks).map(name=>({name,share:null,real:false}));
+}
+async function renderDecks(){
+  const root=$('#v-decks');
+  root.innerHTML=`
+   <div class="pagehead"><div><h1>Decks</h1><p class="muted">Armá el tuyo o partí de lo que se juega en Standard.</p></div>
+     ${S.deckTab==='mine'?`<button class="btn primary" data-act="newBlankDeck">${ic('plus')}Deck en blanco</button>`:''}</div>
+   <div style="margin-bottom:18px">${seg('deckTab',S.deckTab,[['mine','Mis decks'],['meta','Meta']])}</div>
+   <div id="deckBody"></div>`;
+  if(S.deckTab==='meta') return renderMetaTab();
+  const body=$('#deckBody');
+  body.innerHTML=`
+    <div class="section" style="margin-top:0"><div class="head"><h2>Tus decks</h2></div>
+    ${S.myDecks.length?`<div class="stack">${S.myDecks.map(d=>{
+      const t=S.deckTotals[d.id]||0;
+      return `<div class="panel"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+        <div style="min-width:0"><h3 style="overflow-wrap:anywhere">${esc(d.name)}</h3><p class="muted small">${esc(d.archetype)} · ${t} cartas</p></div>
+        <div style="display:flex;gap:8px"><button class="btn sm primary" ${attr({act:'openDeck',id:d.id})}>Abrir</button><button class="iconbtn" style="width:36px;height:36px" ${attr({act:'delDeck',id:d.id})} aria-label="Eliminar ${esc(d.name)}">${ic('trash')}</button></div></div>
+        <div class="progress" role="progressbar" aria-valuenow="${t}" aria-valuemax="60"><i style="width:${Math.min(100,t/60*100)}%"></i></div></div>`}).join('')}</div>`
+      :empty('Todavía no tenés decks','Elegí uno de los sugeridos de abajo o empezá uno en blanco.')}</div>
+    <div class="section"><div class="head"><h2>Sugeridos del meta</h2></div><div id="sugBox"><p class="muted">Cargando…</p></div></div>`;
+  const sug=await loadSuggestions();
+  const box=$('#sugBox'); if(!box) return;
+  box.innerHTML=`<div class="grid big" style="grid-template-columns:repeat(auto-fill,minmax(210px,1fr))">${sug.map(d=>`<div class="panel">
+    <h3>${esc(d.name)}</h3><p class="muted small" style="margin:4px 0 12px">${d.share!=null?d.share+'% del meta':'Lista de referencia'}${d.real?' · lista real de torneo':''}</p>
+    <button class="btn sm primary" ${attr({act:'newDeckFrom',name:d.name})}>${ic('plus')}Armar este deck</button></div>`).join('')}</div>`;
+}
+async function createDeck(name,archetype){
+  const {data,error}=await sb.from('decks').insert({user_id:S.user.id,name,archetype}).select().single();
+  if(error) return toast(error.message,1);
+  await loadDecks(); openDeck(data.id);
+}
+async function newDeckFrom(arch){
+  const name=await askText('Nombre del deck','Cómo lo querés llamar',arch); if(name) createDeck(name,arch);
+}
+async function newBlankDeck(){
+  const name=await askText('Deck en blanco','Cómo lo querés llamar','Mi deck'); if(name) createDeck(name,'Personalizado');
+}
+async function delDeck(id){
+  if(!confirm('¿Eliminar este deck? No se puede deshacer.')) return;
+  await sb.from('decks').delete().eq('id',id);
+  await loadDecks();
+}
+async function openDeck(id){
+  S.activeDeckId=id; S.activeArchetype=S.myDecks.find(d=>d.id===id)?.archetype;
+  S.builderMode=S.activeArchetype==='Personalizado'?'free':'suggested';
+  const {data}=await sb.from('deck_cards').select('card_name,quantity').eq('deck_id',id);
+  S.deckCards={}; (data||[]).forEach(r=>S.deckCards[r.card_name]=r.quantity);
+  const d=S.myDecks.find(x=>x.id===id);
+  openSheet(d?d.name:'Deck','<div id="builder"></div>',{wide:true,focus:false,onClose:()=>{S.activeDeckId=null;loadDecks()}});
+  renderBuilder();
+}
+function renderBuilder(){
+  const box=$('#builder'); if(!box) return;
+  const sc=$('#sheetBody'), top=sc.scrollTop;
+  box.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+    <span class="muted small">${esc(S.activeArchetype)}</span>
+    ${S.activeArchetype==='Personalizado'?'':seg('builderMode',S.builderMode,[['suggested','Sugerido'],['free','Libre']])}</div><div id="builderBody"></div>`;
+  if(S.builderMode==='suggested') renderSuggested(); else renderFree();
+  sc.scrollTop=top;
+}
+async function getSuggestedList(arch){
+  try{
+    let r=await sb.from('deck_lists').select('card_name,quantity,set_code,number').eq('archetype',arch);
+    if(r.error) r=await sb.from('deck_lists').select('card_name,quantity').eq('archetype',arch); // todavía sin las columnas nuevas
+    const data=r.data;
+    if(!r.error&&data&&data.length){
+      data.forEach(x=>{ if(x.set_code&&x.number) printHints[x.card_name]={set:x.set_code,num:x.number}; });
+      return {list:data.map(x=>[x.card_name,x.quantity]),real:true};
+    }
+  }catch(e){}
+  return {list:refDecks[arch]||[],real:false};
+}
+async function renderSuggested(){
+  const body=$('#builderBody'); if(!body) return;
+  if(!body.dataset.loaded) body.innerHTML='<p class="muted">Cargando lista recomendada…</p>';
+  const {list:ref,real}=await getSuggestedList(S.activeArchetype);
+  if($('#builderBody')!==body) return;
+  body.dataset.loaded=1;
+  if(!ref.length){ body.innerHTML=empty('Sin lista de referencia','Todavía no tenemos una lista para este deck. Usá el modo Libre para armarlo a mano.'); return; }
+  const target=ref.reduce((s,[,t])=>s+t,0), have=ref.reduce((s,[n,t])=>s+Math.min(S.deckCards[n]||0,t),0);
+  body.innerHTML=`
+   <div class="notice">${real?'Núcleo tomado de un decklist real reciente de torneo (Limitless).':'Lista de referencia armada a mano; todavía no hay un decklist real guardado.'}</div>
+   <div style="margin:14px 0 4px;display:flex;justify-content:space-between"><b>Progreso del núcleo</b><b>${have}/${target}</b></div>
+   <div class="progress"><i style="width:${target?have/target*100:0}%"></i></div>
+   <p class="muted small" id="missCost" style="margin-bottom:6px"></p>
+   ${ref.map(([n,t])=>{
+     const own=S.collection[n]||0, cur=S.deckCards[n]||0, miss=Math.max(0,t-own), p=miss>0?productForCard(n):null;
+     return `<div class="rowline">${cardBox(n)}<div class="grow"><b>${esc(n)}</b>
+       <span class="muted small">Tenés ${own} · ${miss>0?`te faltan ${miss}`:'completa'}</span><span class="small" style="color:var(--bad)" data-legal="${esc(n)}"></span>
+       ${p?`<div><button class="btn sm sun" style="margin-top:6px" ${attr({act:'addToCart',id:p.id})}>En tienda · ${gs(p.price_pyg)}</button></div>`:''}</div>
+       <div class="stepper"><button ${attr({act:'deckSug',name:n,d:-1,max:t})} aria-label="Quitar ${esc(n)}">${ic('minus')}</button><b>${cur}/${t}</b><button ${attr({act:'deckSug',name:n,d:1,max:t})} aria-label="Sumar ${esc(n)}">${ic('plus')}</button></div></div>`;
+   }).join('')}`;
+  hydrate(body);
+  if(!real) ref.forEach(([n])=>cardInfo(n).then(i=>{ if(i.legalStandard===false){ const el=$(`[data-legal="${CSS.escape(n)}"]`,body); if(el) el.textContent=' · no es Standard actualmente'; } }));
+  Promise.all(ref.map(([n,t])=>cardInfo(n).then(i=>i.price*Math.max(0,t-(S.collection[n]||0))))).then(v=>{
+    const el=$('#missCost'); if(el) el.textContent='Lo que te falta cuesta aprox. '+usd(v.reduce((a,b)=>a+b,0))+' (TCGPlayer)';
+  });
+}
+async function saveDeckQty(name,q){
+  if(q<=0) delete S.deckCards[name]; else S.deckCards[name]=q;
+  const {error}=await sb.from('deck_cards').upsert({deck_id:S.activeDeckId,card_name:name,quantity:q},{onConflict:'deck_id,card_name'});
+  if(error){ toast('No se pudo guardar '+name+': '+error.message,1); console.error(error); return false; }
+  return true;
+}
+async function changeDeckCard(name,d,max){
+  let q=Math.max(0,Math.min(max,(S.deckCards[name]||0)+d));
+  await saveDeckQty(name,q); renderSuggested();
+}
+async function changeFreeCard(name,d){
+  const q=Math.max(0,(S.deckCards[name]||0)+d);
+  await saveDeckQty(name,q); renderFreeList();
+}
+function renderFree(){
+  const body=$('#builderBody');
+  body.innerHTML=`<div class="search">${ic('search')}<input class="input" data-on="sheetSearch" data-mode="deck" placeholder="Buscá cualquier carta (sin restricción de formato)" autocomplete="off" aria-label="Buscar carta"></div>
+   <div id="sheetResults" style="margin:14px 0"></div>
+   <div class="notice">Modo libre: podés usar cartas de cualquier época, no solo del Standard actual.</div>
+   <div id="freeList" style="margin-top:8px"></div>`;
+  renderFreeList();
+}
+function renderFreeList(){
+  const box=$('#freeList'); if(!box) return;
+  const names=Object.keys(S.deckCards).sort(), total=Object.values(S.deckCards).reduce((a,b)=>a+b,0);
+  box.innerHTML=(names.length?names.map(n=>`<div class="rowline">${cardBox(n)}<div class="grow"><b>${esc(n)}</b></div>
+    <div class="stepper"><button ${attr({act:'deckFree',name:n,d:-1})} aria-label="Quitar ${esc(n)}">${ic('minus')}</button><b>${S.deckCards[n]}</b><button ${attr({act:'deckFree',name:n,d:1})} aria-label="Sumar ${esc(n)}">${ic('plus')}</button></div></div>`).join('')
+    :empty('El deck está vacío','Buscá cartas arriba y sumalas con un toque.'))
+    +`<div class="total"><span>Total</span><span>${total}/60</span></div>`;
+  hydrate(box);
+}
+
+/* ---------- Meta ---------- */
+async function loadLiveMeta(){
+  try{
+    const {data:latest}=await sb.from('meta_snapshots').select('captured_at').order('captured_at',{ascending:false}).limit(1).maybeSingle();
+    if(!latest){ S.meta={rows:[],updated:null}; return; }
+    const {data:cur}=await sb.from('meta_snapshots').select('name,share').eq('captured_at',latest.captured_at).order('share',{ascending:false});
+    const {data:prevRow}=await sb.from('meta_snapshots').select('captured_at').lt('captured_at',latest.captured_at).order('captured_at',{ascending:false}).limit(1).maybeSingle();
+    const prevMap={};
+    if(prevRow){ const {data:prev}=await sb.from('meta_snapshots').select('name,share').eq('captured_at',prevRow.captured_at); (prev||[]).forEach(p=>prevMap[p.name]=p.share); }
+    S.meta={updated:latest.captured_at,hasPrev:!!prevRow,rows:(cur||[]).map(d=>({...d,prev:prevMap[d.name]}))};
+  }catch(e){ S.meta=null; }
+}
+function deltaHtml(d){
+  if(!S.meta?.hasPrev) return '';
+  if(d.prev==null) return '<span class="pill ok">nuevo</span>';
+  const x=d.share-d.prev; if(Math.abs(x)<0.1) return '<span class="muted">=</span>';
+  return x>0?`<span class="delta up">▲ ${x.toFixed(1)}%</span>`:`<span class="delta down">▼ ${Math.abs(x).toFixed(1)}%</span>`;
+}
+function metaRowsHtml(limit){
+  if(!S.meta) return '<p class="muted">No se pudo leer el meta todavía.</p>';
+  if(!S.meta.rows.length) return '<p class="muted">Todavía no hay datos del meta. Entrá a Decks › Meta y tocá Actualizar.</p>';
+  const max=Math.max(...S.meta.rows.map(r=>r.share));
+  return S.meta.rows.slice(0,limit||99).map(d=>`<div class="metarow"><div><b>${esc(d.name)}</b></div><div><b>${d.share}%</b> ${deltaHtml(d)}</div><div class="bar"><i style="width:${d.share/max*100}%"></i></div></div>`).join('');
+}
+async function renderMetaTab(){
+  const body=$('#deckBody');
+  const draw=()=>{
+    body.innerHTML=`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <div><h2>Más jugados en Standard</h2><p class="muted small">${S.meta?.updated?'Actualizado '+fdate(S.meta.updated):'Fuente: Limitless TCG'}</p></div>
+      <button class="btn sm" id="refreshBtn" data-act="refreshMeta">Actualizar</button></div>
+      ${(S.meta?.rows||[]).map(d=>{ const can=refDecks[d.name]||S.realNames.has(d.name);
+        return `<div class="metarow"><div><b>${esc(d.name)}</b></div><div><b>${d.share}%</b> ${deltaHtml(d)}</div><div class="bar"><i style="width:${d.share/Math.max(...S.meta.rows.map(r=>r.share))*100}%"></i></div>
+        ${can?`<div style="grid-column:1/-1;margin-top:6px"><button class="btn sm" ${attr({act:'newDeckFrom',name:d.name})}>Armar este deck</button></div>`:''}</div>`}).join('')||metaRowsHtml()}</div>
+     <div class="section"><div class="head"><h2>Cuánto cuesta armarlos</h2></div><div class="panel" id="costBox"></div></div>`;
+    $('#costBox').innerHTML=Object.keys(refDecks).map(name=>{
+      const list=refDecks[name],target=list.reduce((s,[,t])=>s+t,0),have=list.reduce((s,[n,t])=>s+Math.min(S.collection[n]||0,t),0);
+      return `<div class="rowline"><div class="grow"><b>${esc(name)}</b><span class="muted small">Ya tenés el ${Math.round(100*have/target)}%</span></div><b data-cost="${esc(name)}">…</b></div>`;
+    }).join('');
+    Object.keys(refDecks).forEach(name=>Promise.all(refDecks[name].map(([n,t])=>cardInfo(n).then(i=>i.price*t))).then(v=>{
+      const el=$(`[data-cost="${CSS.escape(name)}"]`); if(el) el.textContent=usd(v.reduce((a,b)=>a+b,0));
+    }));
+  };
+  draw();
+  if(!S.meta){ await loadLiveMeta(); if(S.view==='decks'&&S.deckTab==='meta') draw(); }
+  if(!S.realNames.size) loadSuggestions().then(()=>{ if(S.view==='decks'&&S.deckTab==='meta') draw(); });
+}
+async function refreshMeta(){
+  const b=$('#refreshBtn'); if(b){b.disabled=true;b.textContent='Actualizando…'}
+  try{ await fetch(`${SUPABASE_URL}/functions/v1/limitless-meta`,{method:'POST',headers:{Authorization:`Bearer ${SUPABASE_ANON_KEY}`}}); }catch(e){}
+  await loadLiveMeta();
+  if(S.view==='decks'&&S.deckTab==='meta') renderMetaTab();
+}
+
+/* ---------- TIENDA ---------- */
+async function loadProducts(){
+  const {data,error}=await sb.from('products').select('*').order('created_at',{ascending:false});
+  S.products=data||[]; S.shopError=error?error.message:null;
+  pruneCart();
+}
+function productCard(p){
+  const out=p.stock<=0, low=!out&&p.stock<=3;
+  const img=p.image_url?`<img alt="" src="${esc(p.image_url)}" onload="this.classList.add('ok')">`:(p.card_name?`<img alt="" data-card="${esc(p.card_name)}">`:'');
+  return `<button class="product ${out?'out':''}" ${attr({act:'openProduct',id:p.id})}>
+    <div class="cardimg">${p.image_url||p.card_name?'':ic('stack')}${img}<span class="tag">${gs(p.price_pyg)}</span></div>
+    <span class="name">${esc(p.name)}</span>
+    <span class="stockline ${out?'out':low?'low':''}">${out?'Agotado':low?`Quedan ${p.stock}`:(p.kind==='deck'?'Deck armado':p.kind==='single'?`Carta suelta${p.condition?' · '+esc(p.condition):''}`:'Disponible')}</span></button>`;
+}
+function renderShop(){
+  const root=$('#v-shop');
+  root.innerHTML=`<div class="pagehead"><div><h1>${esc(STORE_CONFIG.name)}</h1><p class="muted">Decks armados y cartas sueltas. Pagás por transferencia o en efectivo.</p></div>
+    ${S.isAdmin?`<button class="btn sm" data-act="go" data-view="admin">Administrar tienda</button>`:''}</div>
+   <div style="margin-bottom:16px">${seg('shopTab',S.shopTab,[['catalog','Catálogo'],['orders','Mis pedidos']])}</div><div id="shopBody"></div>`;
+  if(S.shopTab==='orders') return renderMyOrders();
+  const body=$('#shopBody');
+  if(S.shopError){
+    body.innerHTML=empty('La tienda todavía no está activada',S.isAdmin?'Corré el SQL de la tienda en Supabase.':'Volvé en un rato.'); return;
+  }
+  body.innerHTML=`<div class="search" style="margin-bottom:12px">${ic('search')}<input class="input" data-on="shopQuery" value="${esc(S.shopQuery)}" placeholder="Buscar en la tienda" aria-label="Buscar en la tienda"></div>
+    <div class="chips">${[['all','Todo'],['deck','Decks armados'],['single','Cartas sueltas'],['otro','Otros']].map(([v,l])=>`<button class="chip" aria-pressed="${S.shopFilter===v}" data-act="shopFilter" data-v="${v}">${l}</button>`).join('')}</div>
+    <div id="shopGrid" style="margin-top:18px"></div>`;
+  renderShopGrid();
+}
+function renderShopGrid(){
+  const box=$('#shopGrid'); if(!box) return;
+  const q=S.shopQuery.toLowerCase();
+  const list=S.products.filter(p=>p.active&&(S.shopFilter==='all'||p.kind===S.shopFilter)&&(!q||p.name.toLowerCase().includes(q)||(p.card_name||'').toLowerCase().includes(q)));
+  box.innerHTML=list.length?`<div class="grid big">${list.map(productCard).join('')}</div>`
+    :(S.products.length?empty('No hay nada con ese filtro','Probá con otra categoría o borrá la búsqueda.')
+      :empty('Todavía no hay productos',S.isAdmin?'Cargá el primero desde el panel de administración.':'Estamos preparando el catálogo.',S.isAdmin?`<button class="btn primary" data-act="go" data-view="admin">Cargar productos</button>`:''));
+  hydrate(box);
+}
+function openProduct(id){
+  const p=S.products.find(x=>x.id===id); if(!p) return;
+  const out=p.stock<=0, inCart=S.cart[id]||0;
+  const img=p.image_url?`<img alt="" src="${esc(p.image_url)}" onload="this.classList.add('ok')">`:(p.card_name?`<img alt="" data-card="${esc(p.card_name)}">`:'');
+  openSheet(p.name,`<div style="display:grid;grid-template-columns:minmax(120px,200px) 1fr;gap:18px;align-items:start">
+    <div class="cardimg" style="border-radius:14px">${p.image_url||p.card_name?'':ic('stack')}${img}</div>
+    <div><div style="font:800 26px var(--display);margin-bottom:6px">${gs(p.price_pyg)}</div>
+    <p class="small ${out?'':'muted'}" style="font-weight:700">${out?'Agotado':`${p.stock} disponible${p.stock===1?'':'s'}`}${p.condition?` · Estado ${esc(p.condition)}`:''}</p>
+    ${p.description?`<p style="margin-top:12px;white-space:pre-line">${esc(p.description)}</p>`:''}
+    ${p.card_name?`<p class="muted small" style="margin-top:12px">Precio de referencia en EE. UU.: <b data-price="${esc(p.card_name)}">…</b></p>`:''}</div></div>
+    <button class="btn primary block" style="margin-top:20px" ${out?'disabled':''} ${attr({act:'addToCart',id:p.id,close:1})}>${out?'Agotado':inCart?`Agregar otra (tenés ${inCart})`:'Agregar al carrito'}</button>`);
+}
+
+/* carrito */
+function saveCart(){ store.set('pc_cart',S.cart); updateCartBadge(); }
+function pruneCart(){
+  let ch=false;
+  Object.keys(S.cart).forEach(id=>{
+    const p=S.products.find(x=>x.id===id);
+    if(!p||!p.active||p.stock<=0){delete S.cart[id];ch=true}
+    else if(S.cart[id]>p.stock){S.cart[id]=p.stock;ch=true}
+  });
+  if(ch) saveCart();
+}
+function cartLines(){ return Object.entries(S.cart).map(([id,qty])=>({p:S.products.find(x=>x.id===id),qty})).filter(l=>l.p); }
+const cartTotal=()=>cartLines().reduce((s,l)=>s+l.p.price_pyg*l.qty,0);
+function updateCartBadge(){
+  const n=Object.values(S.cart).reduce((a,b)=>a+b,0), b=$('#cartBadge');
+  b.hidden=!n; b.textContent=n;
+}
+function addToCart(id,close){
+  const p=S.products.find(x=>x.id===id); if(!p) return;
+  const cur=S.cart[id]||0;
+  if(cur>=p.stock) return toast('No hay más stock de este producto',1);
+  S.cart[id]=cur+1; saveCart(); toast('Agregado al carrito');
+  if(close) closeSheet();
+}
+function changeCart(id,d){
+  const p=S.products.find(x=>x.id===id); if(!p) return;
+  const q=(S.cart[id]||0)+d;
+  if(q<=0) delete S.cart[id]; else if(q>p.stock) return toast('No hay más stock',1); else S.cart[id]=q;
+  saveCart(); drawCart();
+}
+function openCart(){ openSheet('Tu carrito','<div id="cartBox"></div>',{focus:false}); drawCart(); }
+function drawCart(){
+  const box=$('#cartBox'); if(!box) return;
+  const lines=cartLines();
+  if(!lines.length){ box.innerHTML=empty('Tu carrito está vacío','Elegí algo de la tienda y volvé acá para finalizar.',`<button class="btn primary" data-act="goShop">Ir a la tienda</button>`); return; }
+  box.innerHTML=lines.map(({p,qty})=>`<div class="rowline">
+    <div class="cardimg">${p.image_url?`<img alt="" src="${esc(p.image_url)}" onload="this.classList.add('ok')">`:p.card_name?`<img alt="" data-card="${esc(p.card_name)}">`:''}</div>
+    <div class="grow"><b>${esc(p.name)}</b><span class="muted small">${gs(p.price_pyg)} c/u</span></div>
+    <div style="text-align:right"><div class="stepper"><button ${attr({act:'cartDec',id:p.id})} aria-label="Quitar uno">${ic('minus')}</button><b>${qty}</b><button ${attr({act:'cartInc',id:p.id})} aria-label="Sumar uno">${ic('plus')}</button></div></div></div>`).join('')
+   +`<div class="total"><span>Total</span><span>${gs(cartTotal())}</span></div>
+     <button class="btn primary block" style="margin-top:16px" data-act="checkout">Continuar con el pedido</button>`;
+  hydrate(box);
+}
+function checkout(){
+  const pr=store.get('pc_profile',{});
+  const lines=cartLines();
+  setSheetTitle('Finalizar pedido');
+  setSheet(`<form data-form="checkout">
+    <div class="panel" style="margin-bottom:16px">${lines.map(l=>`<div style="display:flex;justify-content:space-between;gap:10px"><span>${l.qty}× ${esc(l.p.name)}</span><b>${gs(l.p.price_pyg*l.qty)}</b></div>`).join('')}
+      <div class="total"><span>Total</span><span>${gs(cartTotal())}</span></div></div>
+    <label class="field"><span>Nombre y apellido</span><input class="input" name="name" value="${esc(pr.name||'')}" required autocomplete="name"></label>
+    <label class="field"><span>Teléfono / WhatsApp</span><input class="input" name="phone" value="${esc(pr.phone||'')}" type="tel" required autocomplete="tel"></label>
+    <div class="field"><span>Entrega</span><div class="choice">
+      <label><input type="radio" name="delivery" value="retiro" checked><div><b>Retiro</b><small>Sin costo</small></div></label>
+      <label><input type="radio" name="delivery" value="envio"><div><b>Envío</b><small>Se coordina</small></div></label></div></div>
+    <label class="field" id="addrField" hidden><span>Dirección de envío</span><textarea class="input" name="address" placeholder="Calle, barrio y ciudad. Pegá también el link de Google Maps de tu ubicación." autocomplete="street-address">${esc(pr.address||'')}</textarea><small class="muted">En Google Maps: tocá tu ubicación › Compartir › Copiar link. El costo depende de la distancia.</small></label>
+    <div class="field"><span>Pago</span><div class="choice">
+      <label><input type="radio" name="payment" value="transferencia" checked><div><b>Transferencia</b><small>Te pasamos los datos</small></div></label>
+      <label><input type="radio" name="payment" value="efectivo"><div><b>Efectivo</b><small>Al retirar o recibir</small></div></label></div></div>
+    <label class="field"><span>Notas (opcional)</span><textarea class="input" name="notes" placeholder="Horario preferido, dudas…"></textarea></label>
+    <p class="err" id="coErr" role="alert"></p>
+    <button class="btn primary block" type="submit" id="coBtn">Confirmar pedido</button>
+    <p class="muted small" style="margin-top:10px">Al confirmar reservamos tu stock. El pedido queda pendiente hasta que confirmemos tu pago.</p></form>`);
+  $$('input[name=delivery]').forEach(r=>r.addEventListener('change',()=>{ $('#addrField').hidden=$('input[name=delivery]:checked').value!=='envio'; }));
+}
+function setSheetTitle(t){ const h=$('.sheet header h2'); if(h) h.textContent=t; }
+async function placeOrder(form){
+  const f=new FormData(form), btn=$('#coBtn'), err=$('#coErr'); err.textContent='';
+  const delivery=f.get('delivery'), address=(f.get('address')||'').trim();
+  if(delivery==='envio'&&!address){ err.textContent='Escribí la dirección de envío.'; return; }
+  btn.disabled=true; btn.textContent='Enviando…';
+  const items=Object.entries(S.cart).map(([product_id,qty])=>({product_id,qty}));
+  const {data,error}=await sb.rpc('place_order',{
+    p_items:items,p_customer_name:f.get('name').trim(),p_phone:f.get('phone').trim(),p_delivery:delivery,
+    p_address:address||null,p_payment:f.get('payment'),p_notes:(f.get('notes')||'').trim()||null
+  });
+  if(error){
+    err.textContent=error.message.replace(/^.*?:\s*/,'');
+    btn.disabled=false; btn.textContent='Confirmar pedido';
+    await loadProducts(); return;
+  }
+  store.set('pc_profile',{name:f.get('name').trim(),phone:f.get('phone').trim(),address});
+  const payment=f.get('payment');
+  S.cart={}; saveCart(); await loadProducts();
+  showOrderDone({reference:data.reference,total:data.total,payment,delivery});
+}
+function waLink(text,phone){ return `https://wa.me/${phone||STORE_CONFIG.whatsapp}?text=${encodeURIComponent(text)}`; }
+function waPhone(p){ let d=String(p).replace(/\D/g,''); if(d.startsWith('0')) d='595'+d.slice(1); return d; }
+function payInstructions(o){
+  const b=STORE_CONFIG.bank;
+  if(o.payment==='transferencia') return `<div class="panel" style="margin:14px 0"><h3 style="margin-bottom:10px">Transferí ${gs(o.total)}</h3>
+    <dl class="kv">${[['Banco',b.banco],['Titular',b.titular],['Alias / cuenta',b.cuenta],['Documento',b.documento]].filter(r=>r[1]).map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}<dt>Concepto</dt><dd>${esc(o.reference)}</dd></dl>
+    <p class="small muted" style="margin-top:10px">Poné el código <b>${esc(o.reference)}</b> como concepto y mandanos el comprobante por WhatsApp.</p></div>`;
+  return `<div class="notice" style="margin:14px 0">Pagás ${gs(o.total)} en efectivo ${o.delivery==='retiro'?'al retirar':'al recibir'}. Te escribimos por WhatsApp para coordinar.</div>`;
+}
+function showOrderDone(o){
+  setSheetTitle('¡Pedido recibido!');
+  setSheet(`<p>Guardamos tu pedido. Tu código es:</p><div class="refcode">${esc(o.reference)}</div>
+    ${payInstructions(o)}
+    <p class="small muted">${o.delivery==='retiro'?esc(STORE_CONFIG.pickup):esc(STORE_CONFIG.shippingNote)}</p>
+    <a class="btn sun block" style="margin-top:16px" target="_blank" rel="noopener" href="${waLink(`Hola! Hice el pedido ${o.reference} por ${gs(o.total)}.${o.payment==='transferencia'?' Te paso el comprobante.':''}`)}">Avisar por WhatsApp</a>
+    <button class="btn block" style="margin-top:10px" data-act="goOrders">Ver mis pedidos</button>`);
+}
+async function renderMyOrders(){
+  const body=$('#shopBody'); body.innerHTML='<p class="muted">Cargando…</p>';
+  const {data,error}=await sb.from('orders').select('*, order_items(*)').eq('user_id',S.user.id).order('created_at',{ascending:false});
+  if(S.view!=='shop'||S.shopTab!=='orders') return;
+  if(error){ body.innerHTML=empty('No se pudieron cargar tus pedidos',esc(error.message)); return; }
+  S.orders=data||[];
+  body.innerHTML=S.orders.length?S.orders.map(o=>orderHtml(o,false)).join(''):empty('Todavía no hiciste pedidos','Cuando compres algo, lo vas a ver acá con su estado.',`<button class="btn primary" data-act="shopTab" data-v="catalog">Ver el catálogo</button>`);
+}
+const STATUS=['pendiente','pagado','enviado','entregado','cancelado'];
+function orderHtml(o,admin){
+  const items=(o.order_items||[]).map(i=>`<li><span>${i.quantity}× ${esc(i.name)}</span><span>${gs(i.unit_price_pyg*i.quantity)}</span></li>`).join('');
+  const pend=o.status==='pendiente';
+  return `<div class="order"><div class="top2"><div><b style="font:800 18px var(--display)">${esc(o.reference)}</b><div class="muted small">${fdate(o.created_at)}</div></div><span class="pill ${o.status}">${o.status}</span></div>
+    ${admin?`<p><b>${esc(o.customer_name)}</b> · <a href="${waLink('Hola '+o.customer_name+', te escribo por tu pedido '+o.reference+'.',waPhone(o.phone))}" target="_blank" rel="noopener">${esc(o.phone)}</a></p>`:''}
+    <ul>${items}</ul><div style="display:flex;justify-content:space-between;font-weight:800"><span>Total</span><span>${gs(o.total_pyg)}</span></div>
+    <p class="muted small" style="margin-top:8px">${o.delivery==='retiro'?'Retiro':'Envío a '+esc(o.address||'')} · ${o.payment_method==='transferencia'?'Transferencia':'Efectivo'}${o.notes?' · “'+esc(o.notes)+'”':''}</p>
+    ${admin?`<label class="field" style="margin:12px 0 0"><span>Estado</span><select class="input" data-on="orderStatus" data-id="${esc(o.id)}" data-cur="${o.status}">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></label>`
+      :(pend&&o.payment_method==='transferencia'?`<a class="btn sun sm" style="margin-top:12px" target="_blank" rel="noopener" href="${waLink(`Hola! Te paso el comprobante del pedido ${o.reference}.`)}">Enviar comprobante</a>`:'')}</div>`;
+}
+
+/* ---------- ADMIN ---------- */
+function renderAdmin(){
+  const root=$('#v-admin');
+  if(!S.isAdmin){ root.innerHTML=empty('Solo para administradores','Tu cuenta no tiene permisos para ver esto.',`<button class="btn" data-act="go" data-view="shop">Volver a la tienda</button>`); return; }
+  root.innerHTML=`<div class="pagehead"><div><h1>Administrar tienda</h1></div><button class="btn sm" data-act="go" data-view="shop">Ver como cliente</button></div>
+    <div style="margin-bottom:16px">${seg('adminTab',S.adminTab,[['orders','Pedidos'],['products','Productos']])}</div><div id="adminBody"></div>`;
+  if(S.adminTab==='orders') renderAdminOrders(); else renderAdminProducts();
+}
+async function renderAdminOrders(){
+  const body=$('#adminBody'); body.innerHTML='<p class="muted">Cargando…</p>';
+  const {data,error}=await sb.from('orders').select('*, order_items(*)').order('created_at',{ascending:false});
+  if(error){ body.innerHTML=empty('No se pudieron cargar los pedidos',esc(error.message)); return; }
+  S.adminOrders=data||[];
+  drawAdminOrders();
+}
+function drawAdminOrders(){
+  const body=$('#adminBody'); if(!body||S.adminTab!=='orders') return;
+  const f=S.adminOrderFilter, list=S.adminOrders.filter(o=>f==='todos'||o.status===f);
+  const cnt=s=>S.adminOrders.filter(o=>o.status===s).length;
+  body.innerHTML=`<div class="chips" style="margin-bottom:16px">${['pendiente','pagado','enviado','entregado','cancelado','todos'].map(s=>`<button class="chip" aria-pressed="${f===s}" data-act="adminFilter" data-v="${s}">${s==='todos'?'Todos':s[0].toUpperCase()+s.slice(1)}${s!=='todos'?` (${cnt(s)})`:''}</button>`).join('')}</div>
+    ${list.length?list.map(o=>orderHtml(o,true)).join(''):empty('No hay pedidos acá','Cuando alguien compre, aparece en esta lista.')}`;
+}
+async function changeOrderStatus(sel){
+  const id=sel.dataset.id,next=sel.value,cur=sel.dataset.cur;
+  if(next==='cancelado'&&!confirm('Al cancelar se devuelve el stock y el pedido no se puede reactivar. ¿Cancelar?')){ sel.value=cur; return; }
+  const {error}=await sb.rpc('set_order_status',{p_order:id,p_status:next});
+  if(error){ toast(error.message.replace(/^.*?:\s*/,''),1); sel.value=cur; return; }
+  toast('Pedido '+next); await loadProducts(); renderAdminOrders();
+}
+function renderAdminProducts(){
+  const body=$('#adminBody');
+  body.innerHTML=`<button class="btn primary" data-act="editProduct" style="margin-bottom:16px">${ic('plus')}Nuevo producto</button>
+   ${S.shopError?empty('Falta correr el SQL de la tienda',esc(S.shopError)):''}
+   ${S.products.length?`<div class="panel">${S.products.map(p=>`<div class="rowline">
+      <div class="cardimg">${p.image_url?`<img alt="" src="${esc(p.image_url)}" onload="this.classList.add('ok')">`:p.card_name?`<img alt="" data-card="${esc(p.card_name)}">`:''}</div>
+      <div class="grow"><b>${esc(p.name)}</b><span class="muted small">${gs(p.price_pyg)} · ${p.kind==='deck'?'Deck':p.kind==='single'?'Carta':'Otro'} ${p.active?'':'· <b>oculto</b>'}</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <div class="stepper"><button ${attr({act:'stockDec',id:p.id})} aria-label="Bajar stock">${ic('minus')}</button><b title="Stock">${p.stock}</b><button ${attr({act:'stockInc',id:p.id})} aria-label="Subir stock">${ic('plus')}</button></div>
+        <div><button class="btn sm" ${attr({act:'editProduct',id:p.id})}>Editar</button></div></div></div>`).join('')}</div>`
+     :(S.shopError?'':empty('Todavía no cargaste productos','Empezá por tu primer deck o carta suelta.'))}`;
+  hydrate(body);
+}
+async function changeStock(id,d){
+  const p=S.products.find(x=>x.id===id); if(!p) return;
+  const stock=Math.max(0,p.stock+d);
+  const {error}=await sb.from('products').update({stock}).eq('id',id);
+  if(error) return toast(error.message,1);
+  p.stock=stock; renderAdminProducts();
+}
+function editProduct(id){
+  const p=S.products.find(x=>x.id===id)||{kind:'single',active:true,stock:1};
+  openSheet(id?'Editar producto':'Nuevo producto',`<form data-form="product" data-id="${esc(id||'')}">
+    <label class="field"><span>Tipo</span><select class="input" name="kind">${[['single','Carta suelta'],['deck','Deck armado'],['otro','Otro']].map(([v,l])=>`<option value="${v}" ${p.kind===v?'selected':''}>${l}</option>`).join('')}</select></label>
+    <label class="field"><span>Nombre</span><input class="input" name="name" value="${esc(p.name||'')}" required maxlength="120"></label>
+    <label class="field"><span>Descripción (opcional)</span><textarea class="input" name="description">${esc(p.description||'')}</textarea></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <label class="field"><span>Precio (Gs.)</span><input class="input" name="price" inputmode="numeric" value="${p.price_pyg??''}" required></label>
+      <label class="field"><span>Stock</span><input class="input" name="stock" inputmode="numeric" value="${p.stock??0}" required></label></div>
+    <label class="field"><span>Nombre de la carta (para traer la imagen)</span><input class="input" name="card_name" value="${esc(p.card_name||'')}" placeholder="Ej: Charizard ex"></label>
+    <label class="field"><span>Link de imagen propia (opcional)</span><input class="input" name="image_url" value="${esc(p.image_url||'')}" placeholder="https://…"></label>
+    <label class="field"><span>Estado de la carta (opcional)</span><input class="input" name="condition" value="${esc(p.condition||'')}" placeholder="NM, LP, MP…" maxlength="12"></label>
+    <label style="display:flex;gap:10px;align-items:center;margin-bottom:16px"><input type="checkbox" name="active" ${p.active?'checked':''} style="width:20px;height:20px;accent-color:var(--brand)"> Visible en la tienda</label>
+    <p class="err" id="pfErr" role="alert"></p>
+    <button class="btn primary block" type="submit">Guardar</button>
+    ${id?`<button class="btn danger block" type="button" style="margin-top:10px" data-act="delProduct" data-id="${esc(id)}">Eliminar producto</button>`:''}</form>`);
+}
+async function saveProduct(form){
+  const f=new FormData(form), id=form.dataset.id, err=$('#pfErr');
+  const price=parseInt(String(f.get('price')).replace(/\D/g,''),10), stock=parseInt(String(f.get('stock')).replace(/\D/g,''),10);
+  if(!(price>=0)||!(stock>=0)){ err.textContent='Revisá el precio y el stock: tienen que ser números.'; return; }
+  const row={kind:f.get('kind'),name:f.get('name').trim(),description:(f.get('description')||'').trim()||null,price_pyg:price,stock,
+    card_name:(f.get('card_name')||'').trim()||null,image_url:(f.get('image_url')||'').trim()||null,condition:(f.get('condition')||'').trim()||null,active:f.get('active')==='on'};
+  const q=id?sb.from('products').update(row).eq('id',id):sb.from('products').insert(row);
+  const {error}=await q;
+  if(error){ err.textContent=error.message; return; }
+  closeSheet(); toast(id?'Producto actualizado':'Producto creado');
+  await loadProducts(); if(S.view==='admin') renderAdminProducts();
+}
+async function delProduct(id){
+  if(!confirm('¿Eliminar este producto? Los pedidos anteriores se conservan.')) return;
+  const {error}=await sb.from('products').delete().eq('id',id);
+  if(error) return toast(error.message,1);
+  closeSheet(); toast('Producto eliminado'); await loadProducts(); renderAdminProducts();
+}
+
+/* ---------- cuenta ---------- */
+function openMenu(){
+  openSheet('Mi cuenta',`<p class="muted" style="margin-bottom:16px;overflow-wrap:anywhere">${esc(S.user.email)}${S.isAdmin?' · administrador':''}</p>
+   <div class="stack"><button class="btn block" data-act="goOrders">Mis pedidos</button>
+   ${S.isAdmin?`<button class="btn block" data-act="goAdmin">Administrar tienda</button>`:''}
+   <button class="btn block danger" data-act="signOut">Cerrar sesión</button></div>`,{focus:false});
+}
+
+/* ---------- eventos ---------- */
+const actions={
+  go:d=>go(d.view), goShop:()=>{closeSheet();S.shopTab='catalog';go('shop')}, goMeta:()=>{S.deckTab='meta';go('decks')},
+  goOrders:()=>{closeSheet();S.shopTab='orders';go('shop')}, goAdmin:()=>{closeSheet();go('admin')},
+  authMode:d=>setAuthMode(d.v), signOut, openMenu, openCart, closeSheet,
+  openCardSearch:d=>openCardSearch(d.v), cardAdd:d=>cardAdd(d.v,d.name),
+  collTab:d=>{S.collTab=d.v;S.collQuery='';renderCollection()},
+  collInc:d=>setCollQty(d.name,(S.collection[d.name]||0)+1), collDec:d=>setCollQty(d.name,(S.collection[d.name]||0)-1),
+  collDel:d=>{ if(confirm('¿Quitar '+d.name+' de tu colección?')) setCollQty(d.name,0) },
+  wishGot:d=>gotWish(d.name), wishDel:d=>addWishQty(d.name,0),
+  deckTab:d=>{S.deckTab=d.v;renderDecks()}, newDeckFrom:d=>{closeSheet();newDeckFrom(d.name)}, newBlankDeck,
+  openDeck:d=>openDeck(d.id), delDeck:d=>delDeck(d.id),
+  builderMode:d=>{S.builderMode=d.v;renderBuilder()},
+  deckSug:d=>changeDeckCard(d.name,+d.d,+d.max), deckFree:d=>changeFreeCard(d.name,+d.d),
+  refreshMeta,
+  shopTab:d=>{S.shopTab=d.v;renderShop()}, shopFilter:d=>{S.shopFilter=d.v;renderShop()},
+  openProduct:d=>openProduct(d.id), addToCart:d=>addToCart(d.id,d.close),
+  cartInc:d=>changeCart(d.id,1), cartDec:d=>changeCart(d.id,-1), checkout,
+  adminTab:d=>{S.adminTab=d.v;renderAdmin()}, adminFilter:d=>{S.adminOrderFilter=d.v;drawAdminOrders()},
+  editProduct:d=>editProduct(d.id), stockInc:d=>changeStock(d.id,1), stockDec:d=>changeStock(d.id,-1), delProduct:d=>delProduct(d.id)
+};
+document.addEventListener('click',e=>{
+  if(e.target.id==='layer'){ closeSheet(); return; }
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const fn=actions[el.dataset.act]; if(fn) fn(el.dataset,el,e);
+});
+const inputs={
+  homeSearch:debounce(onHomeSearch), collQuery:el=>{S.collQuery=el.value;renderCollectionGrid()},
+  shopQuery:el=>{S.shopQuery=el.value;renderShopGrid()}, sheetSearch:el=>onSheetSearch(el), orderStatus:changeOrderStatus
+};
+document.addEventListener('input',e=>{ const el=e.target.closest('[data-on]'); if(el&&el.tagName!=='SELECT') inputs[el.dataset.on]?.(el); });
+document.addEventListener('change',e=>{ const el=e.target.closest('select[data-on]'); if(el) inputs[el.dataset.on]?.(el); });
+document.addEventListener('submit',e=>{
+  const f=e.target; if(f.id==='authForm'){ submitAuth(e); return; }
+  const k=f.dataset.form; if(!k||k==='ask') return;
+  e.preventDefault();
+  if(k==='checkout') placeOrder(f); else if(k==='product') saveProduct(f);
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#layer').hidden) closeSheet(); });
+boot();
+</script>
+</body>
+</html>
